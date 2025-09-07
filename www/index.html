@@ -361,6 +361,7 @@
                 </div>
 
                 <div class="button-group">
+                    <button class="button" onclick="requestStoragePermissions()">0. Request Storage Permissions</button>
                     <button class="button" onclick="testEcho()">1. Test Echo</button>
                     <button class="button" onclick="initializeContext()">2. Initialize Context</button>
                     <button class="button" onclick="getModelInfo()">3. Get Model Info</button>
@@ -575,6 +576,7 @@
                     }
                 });
 
+
                 currentContextId = newContextId;
                 document.getElementById('contextId').textContent = currentContextId;
                 document.getElementById('contextStatus').textContent = 'Initialized';
@@ -592,6 +594,51 @@
             }
         }
 
+        // Request Storage Permissions
+        window.requestStoragePermissions = async function() {
+            console.log('🔄 Requesting storage permissions...');
+            
+            if (!LlamaCpp) {
+                addResult('Storage Permissions', false, 'LlamaCpp plugin not initialized');
+                return;
+            }
+            
+            try {
+                // Check current permissions
+                const checkResult = await LlamaCpp.checkPermissions();
+                console.log('📋 Current permissions status:', checkResult);
+                
+                // Request permissions
+                const requestResult = await LlamaCpp.requestPermissions();
+                console.log('✅ Permission request result:', requestResult);
+                
+                addResult('Storage Permissions', true, `Permissions granted: ${JSON.stringify(requestResult)}`);
+                
+                // Also try using Capacitor's Filesystem plugin if available
+                if (Capacitor && Capacitor.Plugins && Capacitor.Plugins.Filesystem) {
+                    try {
+                        const { Filesystem, Directory } = Capacitor.Plugins;
+                        console.log('📂 Testing filesystem access...');
+                        
+                        // Test reading the model file
+                        const modelPath = document.getElementById('modelPath').value;
+                        const result = await Filesystem.stat({
+                            path: modelPath
+                        });
+                        console.log('📊 File stats:', result);
+                        addResult('File Access Test', true, `File size: ${result.size} bytes`);
+                    } catch (fsError) {
+                        console.error('📂 Filesystem access error:', fsError);
+                        addResult('File Access Test', false, fsError.message);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('❌ Storage permissions request failed:', error);
+                addResult('Storage Permissions', false, error.message);
+            }
+        }
+
         // Get Model Information
         window.getModelInfo = async function() {
             if (!currentContextId) {
@@ -600,7 +647,8 @@
             }
 
             try {
-                const result = await LlamaCpp.modelInfo({ contextId: currentContextId });
+                const modelPath = document.getElementById('modelPath').value;
+                const result = await LlamaCpp.modelInfo({ path: modelPath });
                 
                 // Display model info
                 const modelInfoSection = document.getElementById('modelInfoSection');
