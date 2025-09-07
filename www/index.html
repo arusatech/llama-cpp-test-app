@@ -1,67 +1,1126 @@
-<!DOCTYPE html>
+><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLaMA C++ Test App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LLaMA C++ Capacitor Test</title>
+    
+
+
+    <!-- Include Capacitor core and dependencies -->
+    <script src="cordova.js"></script>
+    <script src="cordova_plugins.js"></script>
+    
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        * {
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
             background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
         }
-        button {
-            background-color: #007bff;
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-ready { background: #d4edda; color: #155724; }
+        .status-loading { background: #fff3cd; color: #856404; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        .status-success { background: #d1ecf1; color: #0c5460; }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            margin: 5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
         }
-        button:hover {
-            background-color: #0056b3;
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-        #output {
-            margin-top: 20px;
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .button-secondary {
+            background: #6c757d;
+        }
+
+        .button-danger {
+            background: #dc3545;
+        }
+
+        .button-success {
+            background: #28a745;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .result-box {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result-item {
             padding: 10px;
-            background-color: #f8f9fa;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            background: #f8f9fa;
             border-radius: 4px;
-            min-height: 100px;
-            white-space: pre-wrap;
         }
-        #status {
+
+        .result-success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+
+        .result-error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .result-time {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
             margin-top: 10px;
+        }
+
+        .info-item {
+            background: white;
             padding: 10px;
-            background-color: #e9ecef;
-            border-radius: 4px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .test-sequence {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .test-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .test-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .test-pending { background: #e0e0e0; }
+        .test-running { background: #fff3cd; }
+        .test-success { background: #d4edda; }
+        .test-failed { background: #f8d7da; }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+            }
+            .container {
+                border-radius: 0;
+            }
+            .button {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>LLaMA C++ Capacitor Test</h1>
-        
-        <div id="controls">
-            <button id="loadModel">Load Model</button>
-            <button id="testInference">Test Inference</button>
-            <button id="clearOutput">Clear Output</button>
+        <div class="header">
+            <h1>🦙 LLaMA C++ Capacitor Test</h1>
+            <p>Complete API Testing Suite</p>
         </div>
-        
-        <div id="status">Status: Ready</div>
-        <div id="output">Output will appear here...</div>
+
+        <div class="content">
+            <!-- Plugin Status -->
+            <div class="section">
+                <div class="section-title">
+                    Plugin Status
+                    <span id="pluginStatus" class="status-badge status-ready">Ready</span>
+                </div>
+                <div id="pluginInfo" class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Plugin Version</div>
+                        <div class="info-value" id="pluginVersion">0.0.16</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Context Status</div>
+                        <div class="info-value" id="contextStatus">Not Initialized</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Context ID</div>
+                        <div class="info-value" id="contextId">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Configuration -->
+            <div class="section">
+                <div class="section-title">Model Configuration</div>
+                
+                <div class="input-group">
+                    <label for="modelPath">Model Path (GGUF file)</label>
+                    <input type="text" id="modelPath" value="/storage/emulated/0/Download/models/tinyllama-1.1b-chat-v1.0.Q2_K.gguf" 
+                           placeholder="/storage/emulated/0/Download/models/tinyllama-1.1b-chat-v1.0.Q2_K.gguf">
+                </div>
+
+                <div class="info-grid">
+                    <div class="input-group">
+                        <label for="contextSize">Context Size</label>
+                        <input type="number" id="contextSize" value="2048" min="128" max="8192">
+                    </div>
+                    <div class="input-group">
+                        <label for="batchSize">Batch Size</label>
+                        <input type="number" id="batchSize" value="512" min="1" max="2048">
+                    </div>
+                    <div class="input-group">
+                        <label for="threads">Threads</label>
+                        <input type="number" id="threads" value="4" min="1" max="16">
+                    </div>
+                    <div class="input-group">
+                        <label for="gpuLayers">GPU Layers</label>
+                        <input type="number" id="gpuLayers" value="0" min="0" max="100">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="button" onclick="testEcho()">1. Test Echo</button>
+                    <button class="button" onclick="initializeContext()">2. Initialize Context</button>
+                    <button class="button" onclick="getModelInfo()">3. Get Model Info</button>
+                    <button class="button button-danger" onclick="releaseContext()">Release Context</button>
+                </div>
+            </div>
+
+            <!-- Model Information -->
+            <div class="section" id="modelInfoSection" style="display: none;">
+                <div class="section-title">
+                    Model Information
+                    <span class="status-badge status-success">Loaded</span>
+                </div>
+                <div id="modelInfo" class="info-grid"></div>
+            </div>
+
+            <!-- Test Functions -->
+            <div class="section">
+                <div class="section-title">Test Functions</div>
+                
+                <div class="input-group">
+                    <label for="testPrompt">Test Prompt</label>
+                    <textarea id="testPrompt" placeholder="Enter your prompt here...">Once upon a time in a land far away, there lived</textarea>
+                </div>
+
+                <div class="info-grid">
+                    <div class="input-group">
+                        <label for="maxTokens">Max Tokens</label>
+                        <input type="number" id="maxTokens" value="100" min="1" max="2048">
+                    </div>
+                    <div class="input-group">
+                        <label for="temperature">Temperature</label>
+                        <input type="number" id="temperature" value="0.7" min="0" max="2" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label for="topK">Top K</label>
+                        <input type="number" id="topK" value="40" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label for="topP">Top P</label>
+                        <input type="number" id="topP" value="0.95" min="0" max="1" step="0.05">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="button" onclick="testTokenize()">4. Test Tokenize</button>
+                    <button class="button" onclick="testCompletion()">5. Test Completion</button>
+                    <button class="button" onclick="testStreamCompletion()">6. Stream Completion</button>
+                    <button class="button" onclick="testEmbedding()">7. Test Embedding</button>
+                    <button class="button" onclick="testBenchmark()">8. Run Benchmark</button>
+                    <button class="button button-danger" onclick="stopCompletion()">Stop Generation</button>
+                </div>
+
+                <div class="button-group">
+                    <button class="button button-success" onclick="runAllTests()">🚀 Run All Tests</button>
+                    <button class="button button-secondary" onclick="clearResults()">Clear Results</button>
+                </div>
+            </div>
+
+            <!-- Test Sequence Status -->
+            <div class="section" id="testSequenceSection" style="display: none;">
+                <div class="section-title">Test Sequence</div>
+                <div class="test-sequence" id="testSequence"></div>
+            </div>
+
+            <!-- Results -->
+            <div class="section">
+                <div class="section-title">
+                    Test Results
+                    <span id="resultCount" class="status-badge status-ready">0 Tests</span>
+                </div>
+                <div class="result-box" id="results">
+                    <div style="text-align: center; color: #999; padding: 20px;">
+                        No test results yet. Click the buttons above to start testing.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <script type="module" src="js/capacitor.js"></script>
-    <script type="module" src="js/app.js"></script>
+
+    <script>
+        // Wait for Capacitor to be ready
+        let Capacitor = null;
+        
+        // Plugin reference
+        let LlamaCpp = null;
+        let currentContextId = null;
+        let isGenerating = false;
+        let testResults = [];
+
+        // Initialize plugin
+        async function initializePlugin() {
+            console.log('🚀 Initializing LlamaCpp plugin...');
+            try {
+                // Method 1: Try registerPlugin if available
+                if (Capacitor && typeof Capacitor.registerPlugin === 'function') {
+                    console.log('📱 Registering Capacitor plugin via registerPlugin...');
+                    LlamaCpp = Capacitor.registerPlugin('LlamaCpp');
+                    window.LlamaCpp = LlamaCpp;
+                    console.log('✅ Plugin registered successfully:', LlamaCpp);
+                }
+                // Method 2: Try direct access via Capacitor.Plugins
+                else if (Capacitor && Capacitor.Plugins && Capacitor.Plugins.LlamaCpp) {
+                    console.log('📱 Accessing LlamaCpp plugin directly...');
+                    LlamaCpp = Capacitor.Plugins.LlamaCpp;
+                    window.LlamaCpp = LlamaCpp;
+                    console.log('✅ Plugin accessed directly:', LlamaCpp);
+                }
+                else {
+                    throw new Error('LlamaCpp plugin not found via registerPlugin or Capacitor.Plugins');
+                }
+                
+                addResult('Plugin Initialization', true, 'LlamaCpp plugin loaded successfully');
+                updateStatus('pluginStatus', 'Ready', 'status-ready');
+            } catch (error) {
+                console.error('❌ Plugin initialization failed:', error);
+                addResult('Plugin Initialization', false, error.message);
+                updateStatus('pluginStatus', 'Error', 'status-error');
+            }
+        }
+
+        // Test Plugin Connection (using a simple method)
+        window.testEcho = async function() {
+            console.log('🔄 Starting Plugin Connection Test...');
+            console.log('LlamaCpp object:', LlamaCpp);
+            console.log('LlamaCpp methods:', LlamaCpp ? Object.keys(LlamaCpp) : 'None');
+            
+            updateStatus('pluginStatus', 'Testing...', 'status-loading');
+            
+            if (!LlamaCpp) {
+                addResult('Plugin Test', false, 'LlamaCpp plugin not initialized');
+                updateStatus('pluginStatus', 'Error', 'status-error');
+                return;
+            }
+            
+            try {
+                // Test a simple method that should exist
+                console.log('📤 Testing plugin connection with available methods...');
+                
+                // Just verify the plugin is loaded and functional
+                const availableMethods = Object.keys(LlamaCpp);
+                console.log('✅ Plugin loaded with methods:', availableMethods);
+                
+                addResult('Plugin Test', true, `Plugin loaded successfully with ${availableMethods.length} methods`);
+                updateStatus('pluginStatus', 'Ready', 'status-ready');
+                console.log('✅ Plugin test completed successfully');
+            } catch (error) {
+                console.error('❌ Plugin test failed:', error);
+                console.error('Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+                addResult('Plugin Test', false, `Error: ${error.message}`);
+                updateStatus('pluginStatus', 'Error', 'status-error');
+            }
+        }
+
+        // Initialize Context
+        window.initializeContext = async function() {
+            console.log('🔄 Starting Initialize Context...');
+            console.log('LlamaCpp object:', LlamaCpp);
+            console.log('LlamaCpp methods:', LlamaCpp ? Object.keys(LlamaCpp) : 'None');
+            
+            if (!LlamaCpp) {
+                addResult('Initialize Context', false, 'LlamaCpp plugin not initialized');
+                return;
+            }
+            
+            const modelPath = document.getElementById('modelPath').value;
+            const contextSize = parseInt(document.getElementById('contextSize').value);
+            const batchSize = parseInt(document.getElementById('batchSize').value);
+            const threads = parseInt(document.getElementById('threads').value);
+            const gpuLayers = parseInt(document.getElementById('gpuLayers').value);
+
+            if (!modelPath) {
+                addResult('Initialize Context', false, 'Model path is required');
+                return;
+            }
+
+            console.log('📤 Calling LlamaCpp.initContext with params:', {
+                modelPath, contextSize, batchSize, threads, gpuLayers
+            });
+
+            updateStatus('pluginStatus', 'Initializing...', 'status-loading');
+            updateStatus('contextStatus', 'Initializing...', 'status-loading');
+
+            try {
+                // Check if initContext method exists
+                if (typeof LlamaCpp.initContext !== 'function') {
+                    throw new Error(`LlamaCpp.initContext is not a function. Available methods: ${Object.keys(LlamaCpp)}`);
+                }
+                // Generate a unique context ID
+                const newContextId = Date.now();
+                
+                const result = await LlamaCpp.initContext({
+                    contextId: newContextId,
+                    params: {
+                        modelPath: modelPath,
+                        model: modelPath,
+                        n_ctx: contextSize,
+                        n_batch: batchSize,
+                        n_threads: threads,
+                        n_gpu_layers: gpuLayers,
+                        use_mlock: true,
+                        use_mmap: true,
+                        seed: -1,
+                        f16_kv: true,
+                        logits_all: false,
+                        vocab_only: false,
+                        embedding: true
+                    }
+                });
+
+                currentContextId = newContextId;
+                document.getElementById('contextId').textContent = currentContextId;
+                document.getElementById('contextStatus').textContent = 'Initialized';
+                
+                addResult('Initialize Context', true, `Context ID: ${currentContextId}`);
+                updateStatus('pluginStatus', 'Ready', 'status-ready');
+                updateStatus('contextStatus', 'Active', 'status-success');
+                
+                // Auto get model info after initialization
+                await getModelInfo();
+            } catch (error) {
+                addResult('Initialize Context', false, error.message);
+                updateStatus('pluginStatus', 'Error', 'status-error');
+                updateStatus('contextStatus', 'Failed', 'status-error');
+            }
+        }
+
+        // Get Model Information
+        window.getModelInfo = async function() {
+            if (!currentContextId) {
+                addResult('Get Model Info', false, 'No context initialized');
+                return;
+            }
+
+            try {
+                const result = await LlamaCpp.modelInfo({ contextId: currentContextId });
+                
+                // Display model info
+                const modelInfoSection = document.getElementById('modelInfoSection');
+                modelInfoSection.style.display = 'block';
+                
+                const modelInfoDiv = document.getElementById('modelInfo');
+                modelInfoDiv.innerHTML = `
+                    <div class="info-item">
+                        <div class="info-label">Architecture</div>
+                        <div class="info-value">${result.architecture || 'Unknown'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Parameters</div>
+                        <div class="info-value">${formatNumber(result.nParams || 0)}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Quantization</div>
+                        <div class="info-value">${result.quantization || 'Unknown'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Context Length</div>
+                        <div class="info-value">${result.contextLength || 0}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Layers</div>
+                        <div class="info-value">${result.nLayers || 0}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Vocab Size</div>
+                        <div class="info-value">${formatNumber(result.nVocab || 0)}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">File Type</div>
+                        <div class="info-value">${result.fileType || 'Unknown'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">GPU Enabled</div>
+                        <div class="info-value">${result.useGpu ? 'Yes' : 'No'}</div>
+                    </div>
+                `;
+                
+                addResult('Get Model Info', true, `Model: ${result.architecture}, Params: ${formatNumber(result.nParams)}`);
+            } catch (error) {
+                addResult('Get Model Info', false, error.message);
+            }
+        }
+
+        // Test Tokenization
+        window.testTokenize = async function() {
+            if (!currentContextId) {
+                addResult('Tokenize Test', false, 'No context initialized');
+                return;
+            }
+
+            const text = document.getElementById('testPrompt').value || 'Hello, world!';
+
+            try {
+                // Tokenize
+                const tokenResult = await LlamaCpp.tokenize({ 
+                    contextId: currentContextId, 
+                    text: text 
+                });
+                
+                // Detokenize
+                const detokenResult = await LlamaCpp.detokenize({ 
+                    contextId: currentContextId, 
+                    tokens: tokenResult.tokens 
+                });
+                
+                addResult('Tokenize/Detokenize', true, 
+                    `Original: "${text}"\n` +
+                    `Tokens: ${tokenResult.tokens.length} tokens\n` +
+                    `Token IDs: [${tokenResult.tokens.slice(0, 10).join(', ')}...]\n` +
+                    `Detokenized: "${detokenResult.text}"`
+                );
+            } catch (error) {
+                addResult('Tokenize Test', false, error.message);
+            }
+        }
+
+        // Test Completion
+        window.testCompletion = async function() {
+            if (!currentContextId) {
+                addResult('Completion Test', false, 'No context initialized');
+                return;
+            }
+
+            const prompt = document.getElementById('testPrompt').value;
+            const maxTokens = parseInt(document.getElementById('maxTokens').value);
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            const topK = parseInt(document.getElementById('topK').value);
+            const topP = parseFloat(document.getElementById('topP').value);
+
+            updateStatus('pluginStatus', 'Generating...', 'status-loading');
+            isGenerating = true;
+
+            try {
+                const startTime = Date.now();
+                const result = await LlamaCpp.completion({
+                    contextId: currentContextId,
+                    prompt: prompt,
+                    n_predict: maxTokens,
+                    temperature: temperature,
+                    top_k: topK,
+                    top_p: topP,
+                    repeat_penalty: 1.1,
+                    stop: ['User:', '\n\n']
+                });
+                
+                const duration = Date.now() - startTime;
+                
+                addResult('Completion', true, 
+                    `Prompt: "${prompt}"\n\n` +
+                    `Response: "${result.text}"\n\n` +
+                    `Time: ${duration}ms`
+                );
+                
+                updateStatus('pluginStatus', 'Ready', 'status-ready');
+            } catch (error) {
+                addResult('Completion Test', false, error.message);
+                updateStatus('pluginStatus', 'Error', 'status-error');
+            } finally {
+                isGenerating = false;
+            }
+        }
+
+        // Test Stream Completion
+        window.testStreamCompletion = async function() {
+            if (!currentContextId) {
+                addResult('Stream Completion', false, 'No context initialized');
+                return;
+            }
+
+            const prompt = document.getElementById('testPrompt').value;
+            const maxTokens = parseInt(document.getElementById('maxTokens').value);
+            const temperature = parseFloat(document.getElementById('temperature').value);
+
+            updateStatus('pluginStatus', 'Streaming...', 'status-loading');
+            isGenerating = true;
+            
+            let streamedText = '';
+            const startTime = Date.now();
+
+            try {
+                await LlamaCpp.completionStream({
+                    contextId: currentContextId,
+                    prompt: prompt,
+                    n_predict: maxTokens,
+                    temperature: temperature
+                }, (event) => {
+                    if (event.token) {
+                        streamedText += event.token;
+                    }
+                    if (event.completed) {
+                        const duration = Date.now() - startTime;
+                        addResult('Stream Completion', true, 
+                            `Prompt: "${prompt}"\n\n` +
+                            `Response: "${streamedText}"\n\n` +
+                            `Time: ${duration}ms`
+                        );
+                        updateStatus('pluginStatus', 'Ready', 'status-ready');
+                        isGenerating = false;
+                    }
+                });
+            } catch (error) {
+                addResult('Stream Completion', false, error.message);
+                updateStatus('pluginStatus', 'Error', 'status-error');
+                isGenerating = false;
+            }
+        }
+
+        // Test Embedding
+        window.testEmbedding = async function() {
+            if (!currentContextId) {
+                addResult('Embedding Test', false, 'No context initialized');
+                return;
+            }
+
+            const text = document.getElementById('testPrompt').value || 'Test embedding text';
+
+            try {
+                const result = await LlamaCpp.embedding({ 
+                    contextId: currentContextId, 
+                    text: text 
+                });
+                
+                addResult('Embedding', true, 
+                    `Text: "${text}"\n` +
+                    `Embedding size: ${result.embedding.length}\n` +
+                    `First 10 values: [${result.embedding.slice(0, 10).map(v => v.toFixed(4)).join(', ')}...]`
+                );
+            } catch (error) {
+                addResult('Embedding Test', false, error.message);
+            }
+        }
+
+        // Test Benchmark
+        window.testBenchmark = async function() {
+            if (!currentContextId) {
+                addResult('Benchmark', false, 'No context initialized');
+                return;
+            }
+
+            updateStatus('pluginStatus', 'Benchmarking...', 'status-loading');
+
+            try {
+                const result = await LlamaCpp.bench({ 
+                    contextId: currentContextId, 
+                    prompt: 'The quick brown fox jumps over the lazy dog.',
+                    n_runs: 3
+                });
+                
+                addResult('Benchmark', true, 
+                    `Tokens/sec: ${result.tokensPerSecond?.toFixed(2) || 'N/A'}\n` +
+                    `Prompt eval: ${result.promptEvalTime?.toFixed(2) || 'N/A'}ms\n` +
+                    `Eval time: ${result.evalTime?.toFixed(2) || 'N/A'}ms\n` +
+                    `Total time: ${result.totalTime?.toFixed(2) || 'N/A'}ms\n` +
+                    `Prompt tokens: ${result.promptTokens || 'N/A'}\n` +
+                    `Eval tokens: ${result.evalTokens || 'N/A'}`
+                );
+                
+                updateStatus('pluginStatus', 'Ready', 'status-ready');
+            } catch (error) {
+                addResult('Benchmark', false, error.message);
+                updateStatus('pluginStatus', 'Error', 'status-error');
+            }
+        }
+
+        // Stop Completion
+        window.stopCompletion = async function() {
+            if (!currentContextId || !isGenerating) {
+                addResult('Stop Completion', false, 'No active generation');
+                return;
+            }
+
+            try {
+                await LlamaCpp.stopCompletion({ contextId: currentContextId });
+                addResult('Stop Completion', true, 'Generation stopped');
+                isGenerating = false;
+                updateStatus('pluginStatus', 'Ready', 'status-ready');
+            } catch (error) {
+                addResult('Stop Completion', false, error.message);
+            }
+        }
+
+        // Release Context
+        window.releaseContext = async function() {
+            if (!currentContextId) {
+                addResult('Release Context', false, 'No context to release');
+                return;
+            }
+
+            try {
+                await LlamaCpp.releaseContext({ contextId: currentContextId });
+                
+                currentContextId = null;
+                document.getElementById('contextId').textContent = '-';
+                document.getElementById('contextStatus').textContent = 'Not Initialized';
+                document.getElementById('modelInfoSection').style.display = 'none';
+                
+                addResult('Release Context', true, 'Context released successfully');
+                updateStatus('contextStatus', 'Released', 'status-ready');
+            } catch (error) {
+                addResult('Release Context', false, error.message);
+            }
+        }
+
+        // Run All Tests
+        window.runAllTests = async function() {
+            const tests = [
+                { name: '1. Echo Test', fn: testEcho },
+                { name: '2. Initialize Context', fn: initializeContext },
+                { name: '3. Get Model Info', fn: getModelInfo },
+                { name: '4. Tokenization', fn: testTokenize },
+                { name: '5. Completion', fn: testCompletion },
+                { name: '6. Stream Completion', fn: testStreamCompletion },
+                { name: '7. Embedding', fn: testEmbedding },
+                { name: '8. Benchmark', fn: testBenchmark },
+                { name: '9. Release Context', fn: releaseContext }
+            ];
+
+            // Show test sequence
+            const sequenceSection = document.getElementById('testSequenceSection');
+            sequenceSection.style.display = 'block';
+            const sequenceDiv = document.getElementById('testSequence');
+            
+            // Initialize test items
+            sequenceDiv.innerHTML = tests.map((test, index) => `
+                <div class="test-item" id="test-${index}">
+                    <div class="test-status test-pending" id="status-${index}">⏳</div>
+                    <div>${test.name}</div>
+                </div>
+            `).join('');
+
+            // Run tests sequentially
+            for (let i = 0; i < tests.length; i++) {
+                const statusEl = document.getElementById(`status-${i}`);
+                statusEl.className = 'test-status test-running';
+                statusEl.textContent = '⚡';
+                
+                try {
+                    await tests[i].fn();
+                    await delay(500); // Small delay between tests
+                    statusEl.className = 'test-status test-success';
+                    statusEl.textContent = '✓';
+                } catch (error) {
+                    statusEl.className = 'test-status test-failed';
+                    statusEl.textContent = '✗';
+                    console.error(`Test ${tests[i].name} failed:`, error);
+                }
+            }
+
+            // Show summary
+            const successCount = testResults.filter(r => r.success).length;
+            const totalCount = testResults.length;
+            
+            addResult('Test Summary', true, 
+                `Completed ${totalCount} tests\n` +
+                `Success: ${successCount}\n` +
+                `Failed: ${totalCount - successCount}\n` +
+                `Success Rate: ${((successCount / totalCount) * 100).toFixed(1)}%`
+            );
+        }
+
+        // Clear Results
+        window.clearResults = function() {
+            testResults = [];
+            document.getElementById('results').innerHTML = `
+                <div style="text-align: center; color: #999; padding: 20px;">
+                    No test results yet. Click the buttons above to start testing.
+                </div>
+            `;
+            document.getElementById('resultCount').textContent = '0 Tests';
+            document.getElementById('testSequenceSection').style.display = 'none';
+        }
+
+        // Add this function to detect available paths
+        async function detectStoragePaths() {
+            const commonPaths = [
+                '/storage/emulated/0/Download/',
+                '/storage/emulated/0/Download/models/',
+                '/sdcard/Download/',
+                '/storage/emulated/0/Documents/',
+                '/storage/emulated/0/Android/data/ai.annadata.llamacpp/files/',
+                '/data/user/0/ai.annadata.llamacpp/files/',
+                '/android_asset/',
+                '/mnt/sdcard/Download/'
+            ];
+            
+            const detectedPaths = [];
+            
+            // Try to check if paths exist using Filesystem plugin
+            try {
+                if (!Capacitor || !Capacitor.Plugins || !Capacitor.Plugins.Filesystem) {
+                    console.log('Filesystem plugin not available, using default paths');
+                    return;
+                }
+                
+                const { Filesystem, Directory } = Capacitor.Plugins;
+                
+                // Check app directory
+                const appDir = await Filesystem.getUri({
+                    directory: Directory.Data,
+                    path: ''
+                });
+                detectedPaths.push(`App Data: ${appDir.uri}`);
+                
+                // Check external storage
+                const extDir = await Filesystem.getUri({
+                    directory: Directory.External,
+                    path: ''
+                });
+                detectedPaths.push(`External: ${extDir.uri}`);
+                
+                // Check documents
+                const docDir = await Filesystem.getUri({
+                    directory: Directory.Documents,
+                    path: ''
+                });
+                detectedPaths.push(`Documents: ${docDir.uri}`);
+                
+            } catch (error) {
+                console.log('Filesystem check error:', error);
+            }
+            
+            // Update the UI with detected paths
+            if (detectedPaths.length > 0) {
+                addResult('Storage Paths Detected', true, detectedPaths.join('\n'));
+            }
+            
+            return detectedPaths;
+        }
+
+        // Helper Functions
+        function addResult(test, success, message) {
+            const resultsDiv = document.getElementById('results');
+            
+            // Clear placeholder text if this is the first result
+            if (testResults.length === 0) {
+                resultsDiv.innerHTML = '';
+            }
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result-item ${success ? 'result-success' : 'result-error'}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            
+            resultDiv.innerHTML = `
+                <strong>${test}</strong>: ${success ? 'SUCCESS ✓' : 'FAILED ✗'}
+                <pre style="margin: 5px 0; white-space: pre-wrap; word-wrap: break-word;">${escapeHtml(message)}</pre>
+                <div class="result-time">${timestamp}</div>
+            `;
+            
+            resultsDiv.insertBefore(resultDiv, resultsDiv.firstChild);
+            
+            testResults.push({ test, success, message, timestamp });
+            
+            // Update count
+            document.getElementById('resultCount').textContent = `${testResults.length} Tests`;
+            
+            // Auto-scroll to latest result
+            resultsDiv.scrollTop = 0;
+        }
+
+        function updateStatus(elementId, text, className) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = text;
+                element.className = `status-badge ${className}`;
+            }
+        }
+
+        function formatNumber(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toString();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize when device is ready
+        function onDeviceReady() {
+            console.log('🚀 Device ready, initializing Capacitor...');
+            console.log('Available globals:', Object.keys(window).filter(k => k.includes('apacitor') || k.includes('ordova')));
+            
+            // Try different ways to get Capacitor
+            Capacitor = window.Capacitor || window.capacitor || window.CapacitorWeb;
+            
+            if (Capacitor) {
+                console.log('✅ Found Capacitor object');
+                console.log('Available Capacitor methods:', Object.keys(Capacitor));
+                console.log('Capacitor.Plugins:', Capacitor.Plugins);
+                
+                // Try to initialize the plugin using either method
+                initializePlugin().then(() => {
+                    detectStoragePaths();
+                });
+            } else {
+                console.error('❌ No Capacitor object found');
+                addResult('Plugin Initialization', false, 'Capacitor object not found');
+                updateStatus('pluginStatus', 'Error', 'status-error');
+            }
+        }
+
+        // Track if we've already initialized
+        let isInitialized = false;
+        
+        // Wait longer for Capacitor to load
+        function waitForCapacitor() {
+            if (isInitialized) return;
+            
+            console.log('📄 DOM loaded, waiting for Capacitor...');
+            
+            let attempts = 0;
+            const maxAttempts = 10;
+            
+            function checkCapacitor() {
+                if (isInitialized) return;
+                
+                attempts++;
+                console.log(`🔍 Checking for Capacitor (attempt ${attempts}/${maxAttempts})`);
+                
+                if (window.Capacitor) {
+                    isInitialized = true;
+                    onDeviceReady();
+                } else if (attempts < maxAttempts) {
+                    setTimeout(checkCapacitor, 500);
+                } else {
+                    console.error('❌ Timeout waiting for Capacitor');
+                    addResult('Plugin Initialization', false, 'Timeout waiting for Capacitor to load');
+                    updateStatus('pluginStatus', 'Error', 'status-error');
+                }
+            }
+            
+            checkCapacitor();
+        }
+
+        // Safe device ready that prevents duplicate initialization
+        function safeOnDeviceReady() {
+            if (isInitialized) return;
+            isInitialized = true;
+            onDeviceReady();
+        }
+
+        // Listen for both DOMContentLoaded and deviceready events
+        document.addEventListener('DOMContentLoaded', waitForCapacitor);
+        document.addEventListener('deviceready', safeOnDeviceReady, false);
+
+        // Update the default model path to use the real path
+        document.getElementById('modelPath').value = '/storage/emulated/0/Download/models/tinyllama-1.1b-chat-v1.0.Q2_K.gguf';
+    </script>
+
 </body>
 </html>

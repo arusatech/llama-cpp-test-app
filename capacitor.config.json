@@ -1,5 +1,5 @@
 {
-  "appId": "ai.annadata.llamacpp",
+  "appId": "ai.annadata.llamacpptest",
   "appName": "LLaMA C++ Test App",
   "webDir": "www",
   "bundledWebRuntime": false,
