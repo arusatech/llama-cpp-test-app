@@ -1,0 +1,9 @@
+{
+  "appId": "ai.annadata.llamacpp",
+  "appName": "LLaMA C++ Test App",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": true
+  }
+}

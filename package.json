@@ -2,21 +2,23 @@
   "name": "llama-cpp-test-app",
   "version": "1.0.0",
   "description": "Test app for LlamaCpp Capacitor plugin",
-  "main": "index.js",
+  "main": "www/index.html",
   "scripts": {
-    "build": "npx cap build",
-    "build:web": "npx cap build web",
+    "build": "npm run sync",
+    "build:android": "npx cap build android",
     "run:android": "npx cap run android",
     "open:android": "npx cap open android",
-    "serve": "npx cap serve",
-    "sync": "npx cap sync"
+    "sync": "npx cap sync",
+    "sync:android": "npx cap sync android",
+    "serve": "npx cap serve"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",
     "@capacitor/core": "^7.0.0",
-    "llama-cpp-capacitor": "file:../llama-cpp/llama-cpp-capacitor-0.0.13.tgz"
+    "llama-cpp-capacitor": "file:../llama-cpp-capacitor-0.0.16.tgz"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^7.0.0",
     "typescript": "^5.0.0"
   }
