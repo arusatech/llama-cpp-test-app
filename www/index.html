@@ -318,7 +318,7 @@
                 <div id="pluginInfo" class="info-grid">
                     <div class="info-item">
                         <div class="info-label">Plugin Version</div>
-                        <div class="info-value" id="pluginVersion">0.0.16</div>
+                        <div class="info-value" id="pluginVersion">0.0.20</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Context Status</div>
@@ -452,9 +452,48 @@
         let isGenerating = false;
         let testResults = [];
 
+        // Fetch plugin version dynamically
+        async function fetchPluginVersion() {
+            try {
+                // Try to fetch from package.json
+                const response = await fetch('./package.json');
+                if (response.ok) {
+                    const packageData = await response.json();
+                    const pluginVersion = packageData.dependencies['llama-cpp-capacitor'];
+                    if (pluginVersion) {
+                        document.getElementById('pluginVersion').textContent = pluginVersion.replace('file:', '').replace('.tgz', '');
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('Could not fetch version from package.json:', error);
+            }
+            
+            // Fallback: try to get from Capacitor plugin info
+            try {
+                if (Capacitor && Capacitor.Plugins && Capacitor.Plugins.LlamaCpp) {
+                    // Some plugins expose version info
+                    const pluginInfo = Capacitor.Plugins.LlamaCpp;
+                    if (pluginInfo.version) {
+                        document.getElementById('pluginVersion').textContent = pluginInfo.version;
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('Could not fetch version from plugin:', error);
+            }
+            
+            // Keep the hardcoded fallback
+            console.log('Using hardcoded version fallback');
+        }
+
         // Initialize plugin
         async function initializePlugin() {
             console.log('🚀 Initializing LlamaCpp plugin...');
+            
+            // Fetch version first
+            await fetchPluginVersion();
+            
             try {
                 // Method 1: Try registerPlugin if available
                 if (Capacitor && typeof Capacitor.registerPlugin === 'function') {

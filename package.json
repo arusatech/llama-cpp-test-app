@@ -15,7 +15,7 @@
   "dependencies": {
     "@capacitor/android": "^7.0.0",
     "@capacitor/core": "^7.0.0",
-    "llama-cpp-capacitor": "file:../llama-cpp-capacitor-0.0.16.tgz"
+    "llama-cpp-capacitor": "file:../llama-cpp-capacitor-0.0.20.tgz"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
